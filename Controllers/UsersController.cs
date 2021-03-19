@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PaymentGateway_Task.Models.API.Requests;
+using PaymentGateway_Task.Models.API.Response;
 using PaymentGateway_Task.Models.DB;
 using System;
 using System.Linq;
@@ -10,12 +11,32 @@ namespace PaymentGateway_Task.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
-
         private readonly PaymentGatewayContext _db;
+        private Response response;
+
+        private Response NotAuthorized = new Response
+        {
+            ResponseCode = -1,
+            ResponseMessage = "Not Authorized",
+            ResponseResults = false
+        };
+
+        private Response conflict = new Response
+        {
+            ResponseCode = -1,
+            ResponseMessage = "Conflict user",
+            ResponseResults = false
+        };
 
         public UsersController(PaymentGatewayContext _db)
         {
             this._db = _db;
+            NotAuthorized = new Response
+            {
+                ResponseCode = -1,
+                ResponseMessage = "Not Authorized",
+                ResponseResults = false
+            };
         }
 
         [HttpPost]
@@ -33,14 +54,13 @@ namespace PaymentGateway_Task.Controllers
                     throw new ArgumentException("Missing Parameter, User Type is Business, you must send Contact Name, Contact Phone");
 
                 if (_db.Users.Any(s => s.UserName == request.UserName))
-                    return new ObjectResult("Conflict")
+                    return new ObjectResult(conflict) 
                     {
-                        StatusCode = 409,
-                        Value = "Conflict user"
+                        StatusCode = 409
                     };
 
                 if (request.UserType.Equals("1"))
-                    return new UnauthorizedObjectResult("Not Authorized");
+                    return new UnauthorizedObjectResult(NotAuthorized);
 
 
                 var NewUser = new Users
@@ -62,15 +82,32 @@ namespace PaymentGateway_Task.Controllers
                     });
 
                 _db.SaveChanges();
-                return new OkObjectResult($"Created, UserId = {NewUser.Id}");
+
+                response = new Response
+                {
+                    ResponseCode = 0,
+                    ResponseMessage = "User Created",
+                    ResponseResults = "Id: " + NewUser.Id
+                };
+                return new OkObjectResult(response);
             }
             catch (ArgumentException e)
             {
-                return new BadRequestObjectResult(e.Message);
+                return new BadRequestObjectResult(new Response
+                {
+                    ResponseCode = -2,
+                    ResponseMessage = e.Message,
+                    ResponseResults = false
+                });
             }
-            catch (Exception e)
+            catch
             {
-                return new BadRequestObjectResult("Bad Request");
+                return new BadRequestObjectResult(new Response
+                {
+                    ResponseCode = -2,
+                    ResponseMessage = "Bad Request",
+                    ResponseResults = false
+                });
             }
         }
     }

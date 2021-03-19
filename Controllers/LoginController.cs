@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PaymentGateway_Task.Models.API.Requests;
+using PaymentGateway_Task.Models.API.Response;
 using PaymentGateway_Task.Models.DB;
 using System;
 using System.Linq;
@@ -11,6 +12,7 @@ namespace PaymentGateway_Task.Controllers
     public class LoginController : ControllerBase
     {
         private readonly PaymentGatewayContext _db;
+        private Response response;
 
         public LoginController(PaymentGatewayContext _db)
         {
@@ -30,7 +32,12 @@ namespace PaymentGateway_Task.Controllers
                 var returnedUser = _db.Users.Where(s => s.UserName.Equals(request.UserName)).SingleOrDefault();
 
                 if (returnedUser.UserTypeId != 1 && !returnedUser.AdminApproval)
-                    return new UnauthorizedObjectResult(new string("Not Authorized"));
+                    return new UnauthorizedObjectResult(new Response
+                    {
+                        ResponseCode = -1,
+                        ResponseMessage = "Not Authorized",
+                        ResponseResults = false
+                    });
 
                 if (returnedUser.UserName.Equals(request.UserName) && returnedUser.Password.Equals(request.Password))
                 {
@@ -42,7 +49,12 @@ namespace PaymentGateway_Task.Controllers
                                     select new { profile = business };              
 
                         if (string.IsNullOrEmpty(query.SingleOrDefault().profile.Pdf))
-                            return new UnauthorizedObjectResult(new string("Please submit your business certificate"));
+                            return new UnauthorizedObjectResult(new Response
+                            {
+                                ResponseCode = -1,
+                                ResponseMessage = "Please submit your business certificate",
+                                ResponseResults = false
+                            });
                     }
 
                     var token = Guid.NewGuid();
@@ -53,18 +65,40 @@ namespace PaymentGateway_Task.Controllers
                         UserId = returnedUser.Id
                     });
                     _db.SaveChanges();
-                    return new OkObjectResult(new { Token = token, Message = "Success Login" });
+
+                    response = new Response
+                    {
+                        ResponseCode = 0,
+                        ResponseMessage = "Success Login",
+                        ResponseResults = true
+                    };
+                    return new OkObjectResult(response);
                 }
 
-                return new UnauthorizedObjectResult("Not Authorized");
+                return new UnauthorizedObjectResult(new Response
+                {
+                    ResponseCode = -1,
+                    ResponseMessage = "Not Authorized",
+                    ResponseResults = false
+                });
             }
             catch (ArgumentException e)
             {
-                return new BadRequestObjectResult(e.Message);
+                return new BadRequestObjectResult(new Response
+                {
+                    ResponseCode = -2,
+                    ResponseMessage = e.Message,
+                    ResponseResults = false
+                });
             }
             catch
             {
-                return new BadRequestObjectResult("Bad Request");
+                return new BadRequestObjectResult(new Response
+                {
+                    ResponseCode = -2,
+                    ResponseMessage = "Bad Request",
+                    ResponseResults = false
+                });
             }
         }
     }

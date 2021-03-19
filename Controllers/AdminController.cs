@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PaymentGateway_Task.Helpers;
+using PaymentGateway_Task.Models.API.Response;
 using PaymentGateway_Task.Models.DB;
 using System;
 using System.Collections.Generic;
@@ -14,8 +15,14 @@ namespace PaymentGateway_Task.Controllers
     [PaymentGatewayAuthToken]
     public class AdminController : ControllerBase
     {
-
         private readonly PaymentGatewayContext _db;
+
+        private Response NotAuthorized = new Response
+        {
+            ResponseCode = -1,
+            ResponseMessage = "Not Authorized",
+            ResponseResults = false
+        };
 
         public AdminController(PaymentGatewayContext _db)
         {
@@ -34,11 +41,17 @@ namespace PaymentGateway_Task.Controllers
                 {
                     user.AdminApproval = true;
                     _db.SaveChanges();
-                    return new OkObjectResult(true);
+
+                    return new OkObjectResult(new Response
+                    {
+                        ResponseCode = 0,
+                        ResponseMessage = "Approved",
+                        ResponseResults = true
+                    });
                 }
             }
 
-            return new UnauthorizedObjectResult("Not allowed");
+            return new UnauthorizedObjectResult(NotAuthorized);
         }
     }
 }

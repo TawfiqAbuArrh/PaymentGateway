@@ -15,9 +15,5 @@
     </PackageReference>
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Models\API\Response\" />
-  </ItemGroup>
-
 
 </Project>
