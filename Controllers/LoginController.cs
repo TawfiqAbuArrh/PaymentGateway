@@ -27,14 +27,27 @@ namespace PaymentGateway_Task.Controllers
                     throw new ArgumentException("Missing parametter");
                 }
 
-                if (_db.Users.Any(s => s.UserName.Equals(request.UserName) && s.Password.Equals(request.Password)))
+                var returnedUser = _db.Users.Where(s => s.UserName.Equals(request.UserName)).SingleOrDefault();
+
+                if (returnedUser.UserName.Equals(request.UserName) && returnedUser.Password.Equals(request.Password) && returnedUser.AdminApproval)
                 {
+                    if (returnedUser.UserTypeId == 2)
+                    {
+                        var query = from user in _db.Users
+                                    join business in _db.BusinessProfile on user.Id equals business.UserId
+                                    where user.Id == business.UserId
+                                    select new { profile = business };              
+
+                        if (string.IsNullOrEmpty(query.SingleOrDefault().profile.Pdf))
+                            return new UnauthorizedObjectResult(new string("Please submit your business certificate"));
+                    }
+
                     var token = Guid.NewGuid();
                     _db.LoginTokens.Add(new LoginTokens
                     {
                         Token = token.ToString(),
                         TokenExpiration = DateTime.Now.AddMonths(1),
-                        UserId = _db.Users.Where(s => s.UserName == request.UserName).Select(s => s.Id).Single()
+                        UserId = returnedUser.Id
                     });
                     _db.SaveChanges();
                     return new OkObjectResult(new { Token = token, Message = "Success Login" });
