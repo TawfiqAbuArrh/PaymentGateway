@@ -29,7 +29,10 @@ namespace PaymentGateway_Task.Controllers
 
                 var returnedUser = _db.Users.Where(s => s.UserName.Equals(request.UserName)).SingleOrDefault();
 
-                if (returnedUser.UserName.Equals(request.UserName) && returnedUser.Password.Equals(request.Password) && returnedUser.AdminApproval)
+                if (returnedUser.UserTypeId != 1 && !returnedUser.AdminApproval)
+                    return new UnauthorizedObjectResult(new string("Not Authorized"));
+
+                if (returnedUser.UserName.Equals(request.UserName) && returnedUser.Password.Equals(request.Password))
                 {
                     if (returnedUser.UserTypeId == 2)
                     {
@@ -53,11 +56,15 @@ namespace PaymentGateway_Task.Controllers
                     return new OkObjectResult(new { Token = token, Message = "Success Login" });
                 }
 
-                return new UnauthorizedObjectResult(new string("Not Authorized"));
+                return new UnauthorizedObjectResult("Not Authorized");
+            }
+            catch (ArgumentException e)
+            {
+                return new BadRequestObjectResult(e.Message);
             }
             catch
             {
-                return new BadRequestObjectResult(new string("Bad Request"));
+                return new BadRequestObjectResult("Bad Request");
             }
         }
     }
