@@ -1,12 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using PaymentGateway_Task.Helpers;
 using PaymentGateway_Task.Models.API.Response;
 using PaymentGateway_Task.Models.DB;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace PaymentGateway_Task.Controllers
 {
@@ -26,7 +22,7 @@ namespace PaymentGateway_Task.Controllers
 
         private Response BusniessUserNotComplete = new Response
         {
-            ResponseCode = -1,
+            ResponseCode = -2,
             ResponseMessage = "Failed, business profile not completed, missing business certificate",
             ResponseResults = false
         };
@@ -40,27 +36,22 @@ namespace PaymentGateway_Task.Controllers
         [Route("Approval")]
         public IActionResult approval(int UserId)
         {
-            var AccessToken = Request.Headers["Access-token"];
-            if (_db.LoginTokens.Join(_db.Users, L => L.UserId, U => U.Id, (L, U) => new { L, U }).Any(LU => LU.L.UserId == LU.U.Id && LU.U.UserTypeId == 1))
+            var AccessToken = Request.Headers["Access-token"].ToString();
+            var AdminId = _db.LoginTokens.Where(s => s.Token == AccessToken).Select(p => p.UserId).SingleOrDefault();
+
+            if (_db.Users.Any(s => s.Id == AdminId && s.UserTypeId == 1))
             {
-                var user = _db.Users.FirstOrDefault(s => s.Id == UserId && s.UserTypeId != 1);
+                var user = _db.Users.SingleOrDefault(s => s.Id == UserId && s.UserTypeId == 2);
                 if (user != null)
                 {
-                    if (user.UserTypeId == 2)
-                    {
-                        var query = from userTable in _db.Users
-                                    join businessTable in _db.BusinessProfile on userTable.Id equals businessTable.UserId
-                                    where userTable.Id == businessTable.UserId
-                                    select new { profile = businessTable };
-
-                        if (string.IsNullOrEmpty(query.SingleOrDefault().profile.Pdf))
-                            return new UnauthorizedObjectResult(BusniessUserNotComplete);
-                    }
+                    var BusniessProfile = _db.BusinessProfile.Where(s => s.UserId == UserId).SingleOrDefault();
+                    if (string.IsNullOrEmpty(BusniessProfile.Pdf))
+                        return BadRequest(BusniessUserNotComplete);
 
                     user.AdminApproval = true;
                     _db.SaveChanges();
 
-                    return new OkObjectResult(new Response
+                    return Ok(new Response
                     {
                         ResponseCode = 0,
                         ResponseMessage = "Approved",
@@ -69,7 +60,7 @@ namespace PaymentGateway_Task.Controllers
                 }
             }
 
-            return new UnauthorizedObjectResult(NotAuthorized);
+            return Unauthorized(NotAuthorized);
         }
     }
 }

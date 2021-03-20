@@ -14,6 +14,20 @@ namespace PaymentGateway_Task.Controllers
         private readonly PaymentGatewayContext _db;
         private Response response;
 
+        private Response notAuthorized = new Response
+        {
+            ResponseCode = -1,
+            ResponseMessage = "Not Authorized",
+            ResponseResults = false
+        };
+
+        private Response badRequest = new Response
+        {
+            ResponseCode = -2,
+            ResponseMessage = "Bad Request",
+            ResponseResults = false
+        };
+
         public LoginController(PaymentGatewayContext _db)
         {
             this._db = _db;
@@ -32,12 +46,7 @@ namespace PaymentGateway_Task.Controllers
                 var returnedUser = _db.Users.Where(s => s.UserName.Equals(request.UserName)).SingleOrDefault();
 
                 if (returnedUser.UserTypeId != 1 && !returnedUser.AdminApproval)
-                    return new UnauthorizedObjectResult(new Response
-                    {
-                        ResponseCode = -1,
-                        ResponseMessage = "Not Authorized",
-                        ResponseResults = false
-                    });
+                    return Unauthorized(notAuthorized);
 
                 if (returnedUser.UserName.Equals(request.UserName) && returnedUser.Password.Equals(request.Password))
                 {
@@ -54,35 +63,20 @@ namespace PaymentGateway_Task.Controllers
                     {
                         ResponseCode = 0,
                         ResponseMessage = "Success Login",
-                        ResponseResults = true
+                        ResponseResults = token
                     };
-                    return new OkObjectResult(response);
+                    return Ok(response);
                 }
-
-                return new UnauthorizedObjectResult(new Response
-                {
-                    ResponseCode = -1,
-                    ResponseMessage = "Not Authorized",
-                    ResponseResults = false
-                });
+                return Unauthorized(notAuthorized);
             }
             catch (ArgumentException e)
             {
-                return new BadRequestObjectResult(new Response
-                {
-                    ResponseCode = -2,
-                    ResponseMessage = e.Message,
-                    ResponseResults = false
-                });
+                badRequest.ResponseMessage = e.Message;
+                return BadRequest(badRequest);
             }
             catch
             {
-                return new BadRequestObjectResult(new Response
-                {
-                    ResponseCode = -2,
-                    ResponseMessage = "Bad Request",
-                    ResponseResults = false
-                });
+                return BadRequest(badRequest);
             }
         }
     }

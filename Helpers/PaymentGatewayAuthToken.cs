@@ -39,6 +39,12 @@ namespace PaymentGateway_Task.Helpers
                                 StatusCode = 401
                             };
                     }
+                    else
+                        context.Result = new ContentResult()
+                        {
+                            Content = "Invalid Token",
+                            StatusCode = 401
+                        };
                 }
                 else
                 {
