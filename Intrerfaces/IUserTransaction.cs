@@ -6,8 +6,10 @@ namespace PaymentGateway_Task.Intrerfaces
     public interface IUserTransaction
     {
         public List<Transaction> getUserTransaction(int UserId);
-        public string addTransaction(int UserId, Transaction request);
-        public bool withdrawTransaction(int UserId, string transactionID);
-        public bool refundTransaction(int UserId, string transactionID);
+        public bool addTransaction(Users user, Models.API.Requests.Transaction request);
+        public bool withdrawTransaction(Users user, decimal amount);
+        public bool refundTransaction(Users user, Transaction transaction);
+        public bool isUserExceedTheMaximumAllowance(int UserId, decimal amount);
+        public bool AddBalance(Users user, decimal amount);
     }
 }
