@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using PaymentGateway_Task.Implementation;
+using PaymentGateway_Task.Intrerfaces;
 using PaymentGateway_Task.Models.DB;
 
 namespace PaymentGateway_Task
@@ -25,6 +27,7 @@ namespace PaymentGateway_Task
                 options.JsonSerializerOptions.IgnoreNullValues = true;
             });
             services.AddDbContext<PaymentGatewayContext>(option => option.UseSqlServer(Configuration.GetConnectionString("PaymentGateway_TaskContext")));
+            services.AddScoped<IUserTransaction, UserTransactionImplemntation>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
