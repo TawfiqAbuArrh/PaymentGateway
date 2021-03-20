@@ -1,0 +1,403 @@
+{
+	"info": {
+		"_postman_id": "e0e6e6cf-fd7d-48c4-87eb-70bbeaf09106",
+		"name": "PaymentGateway",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Login",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"UserName\":\"Tawfiq\",\r\n    \"Password\":\"12345\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/api/login",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"login"
+					]
+				},
+				"description": "http://localhost:14335/api/login"
+			},
+			"response": []
+		},
+		{
+			"name": "Create User",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"UserName\": \"Tawfiq_Corporate\",\r\n    \"Password\": \"54321\",\r\n    \"CreditBalance\": \"100\",\r\n    \"UserType\": \"2\",\r\n    \"ContactName\": \"tawfiq abu arrh\",\r\n    \"ContactPhone\": \"0595712045\",\r\n    \"BusinessType\": \"2\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/api/Users/Create",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"Users",
+						"Create"
+					]
+				},
+				"description": "http://localhost:14335/api/login"
+			},
+			"response": []
+		},
+		{
+			"name": "Approval",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"UserName\": \"Tawfiq_Corporate\",\r\n    \"Password\": \"54321\",\r\n    \"CreditBalance\": \"100\",\r\n    \"UserType\": \"2\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/api/Admin/Approval",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"Admin",
+						"Approval"
+					]
+				},
+				"description": "http://localhost:14335/api/login"
+			},
+			"response": []
+		},
+		{
+			"name": "Admin GetBusniessPDF",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"UserName\": \"Tawfiq_Corporate\",\r\n    \"Password\": \"54321\",\r\n    \"CreditBalance\": \"100\",\r\n    \"UserType\": \"2\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/api/Admin/Approval",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"Admin",
+						"Approval"
+					]
+				},
+				"description": "http://localhost:14335/api/login"
+			},
+			"response": []
+		},
+		{
+			"name": "UploadPDF",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "pdf",
+							"type": "file",
+							"src": "/E:/Documents/1574794034144_Tawfiq_CV.pdf"
+						}
+					],
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/api/Users/UploadPDF",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"Users",
+						"UploadPDF"
+					]
+				},
+				"description": "http://localhost:14335/api/login"
+			},
+			"response": []
+		},
+		{
+			"name": "GetBusniessPDF",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url}}/api/Users/GetBusniessPDF",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"Users",
+						"GetBusniessPDF"
+					]
+				},
+				"description": "http://localhost:14335/api/login"
+			},
+			"response": []
+		},
+		{
+			"name": "Get User Details",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "access-token",
+						"value": "3d1aa5bc-e258-4c43-9a6b-92c8cee25628",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{url}}/api/Users/Details",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"Users",
+						"Details"
+					]
+				},
+				"description": "http://localhost:14335/api/login"
+			},
+			"response": []
+		},
+		{
+			"name": "Get User Transactions",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "access-token",
+						"value": "3d1aa5bc-e258-4c43-9a6b-92c8cee25628",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{url}}/api/Users/Transactions",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"Users",
+						"Transactions"
+					]
+				},
+				"description": "http://localhost:14335/api/login"
+			},
+			"response": []
+		},
+		{
+			"name": "Add Balance",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "access-token",
+						"value": "3d1aa5bc-e258-4c43-9a6b-92c8cee25628",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"amount\": \"0.0001\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/api/Transaction/AddBalance",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"Transaction",
+						"AddBalance"
+					]
+				},
+				"description": "http://localhost:14335/api/login"
+			},
+			"response": []
+		},
+		{
+			"name": "Withdraw Transaction",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "access-token",
+						"value": "3d1aa5bc-e258-4c43-9a6b-92c8cee25628",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"TransactionId\":\"\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/api/Transaction/Refund",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"Transaction",
+						"Refund"
+					]
+				},
+				"description": "http://localhost:14335/api/login"
+			},
+			"response": []
+		},
+		{
+			"name": "Add Transaction",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "access-token",
+						"value": "3d1aa5bc-e258-4c43-9a6b-92c8cee25628",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"TransactionName\":\"Buy Computer\",\r\n    \"TransactionAmount\":\"10000\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/api/Transaction/Add",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"Transaction",
+						"Add"
+					]
+				},
+				"description": "http://localhost:14335/api/login"
+			},
+			"response": []
+		},
+		{
+			"name": "Refund Transaction",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "access-token",
+						"value": "3d1aa5bc-e258-4c43-9a6b-92c8cee25628",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"TransactionId\":\"\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/api/Transaction/Refund",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"Transaction",
+						"Refund"
+					]
+				},
+				"description": "http://localhost:14335/api/login"
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "url",
+			"value": "http://localhost:14335"
+		}
+	]
+}
