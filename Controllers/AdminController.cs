@@ -24,6 +24,13 @@ namespace PaymentGateway_Task.Controllers
             ResponseResults = false
         };
 
+        private Response BusniessUserNotComplete = new Response
+        {
+            ResponseCode = -1,
+            ResponseMessage = "Failed, business profile not completed, missing business certificate",
+            ResponseResults = false
+        };
+
         public AdminController(PaymentGatewayContext _db)
         {
             this._db = _db;
@@ -39,6 +46,17 @@ namespace PaymentGateway_Task.Controllers
                 var user = _db.Users.FirstOrDefault(s => s.Id == UserId && s.UserTypeId != 1);
                 if (user != null)
                 {
+                    if (user.UserTypeId == 2)
+                    {
+                        var query = from userTable in _db.Users
+                                    join businessTable in _db.BusinessProfile on userTable.Id equals businessTable.UserId
+                                    where userTable.Id == businessTable.UserId
+                                    select new { profile = businessTable };
+
+                        if (string.IsNullOrEmpty(query.SingleOrDefault().profile.Pdf))
+                            return new UnauthorizedObjectResult(BusniessUserNotComplete);
+                    }
+
                     user.AdminApproval = true;
                     _db.SaveChanges();
 

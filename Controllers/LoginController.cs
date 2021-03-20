@@ -41,22 +41,6 @@ namespace PaymentGateway_Task.Controllers
 
                 if (returnedUser.UserName.Equals(request.UserName) && returnedUser.Password.Equals(request.Password))
                 {
-                    if (returnedUser.UserTypeId == 2)
-                    {
-                        var query = from user in _db.Users
-                                    join business in _db.BusinessProfile on user.Id equals business.UserId
-                                    where user.Id == business.UserId
-                                    select new { profile = business };              
-
-                        if (string.IsNullOrEmpty(query.SingleOrDefault().profile.Pdf))
-                            return new UnauthorizedObjectResult(new Response
-                            {
-                                ResponseCode = -1,
-                                ResponseMessage = "Please submit your business certificate",
-                                ResponseResults = false
-                            });
-                    }
-
                     var token = Guid.NewGuid();
                     _db.LoginTokens.Add(new LoginTokens
                     {
