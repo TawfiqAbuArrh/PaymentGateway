@@ -2,6 +2,7 @@
 using PaymentGateway_Task.Helpers;
 using PaymentGateway_Task.Models.API.Response;
 using PaymentGateway_Task.Models.DB;
+using System;
 using System.Linq;
 
 namespace PaymentGateway_Task.Controllers
@@ -13,7 +14,7 @@ namespace PaymentGateway_Task.Controllers
     {
         private readonly PaymentGatewayContext _db;
 
-        private Response NotAuthorized = new Response
+        private Response notAuthorized = new Response
         {
             ResponseCode = -1,
             ResponseMessage = "Not Authorized",
@@ -39,28 +40,55 @@ namespace PaymentGateway_Task.Controllers
             var AccessToken = Request.Headers["Access-token"].ToString();
             var AdminId = _db.LoginTokens.Where(s => s.Token == AccessToken).Select(p => p.UserId).SingleOrDefault();
 
-            if (_db.Users.Any(s => s.Id == AdminId && s.UserTypeId == 1))
-            {
-                var user = _db.Users.SingleOrDefault(s => s.Id == UserId && s.UserTypeId == 2);
-                if (user != null)
+            if (AdminId != null)
+                if (_db.Users.Any(s => s.Id == AdminId && s.UserTypeId == 1))
                 {
-                    var BusniessProfile = _db.BusinessProfile.Where(s => s.UserId == UserId).SingleOrDefault();
-                    if (string.IsNullOrEmpty(BusniessProfile.Pdf))
-                        return BadRequest(BusniessUserNotComplete);
-
-                    user.AdminApproval = true;
-                    _db.SaveChanges();
-
-                    return Ok(new Response
+                    var user = _db.Users.SingleOrDefault(s => s.Id == UserId && s.UserTypeId == 2);
+                    if (user != null)
                     {
-                        ResponseCode = 0,
-                        ResponseMessage = "Approved",
-                        ResponseResults = true
-                    });
-                }
-            }
+                        var BusniessProfile = _db.BusinessProfile.Where(s => s.UserId == UserId).SingleOrDefault();
+                        if (string.IsNullOrEmpty(BusniessProfile.Pdf))
+                            return BadRequest(BusniessUserNotComplete);
 
-            return Unauthorized(NotAuthorized);
+                        user.AdminApproval = true;
+                        _db.SaveChanges();
+
+                        return Ok(new Response
+                        {
+                            ResponseCode = 0,
+                            ResponseMessage = "Approved",
+                            ResponseResults = true
+                        });
+                    }
+                }
+
+            return Unauthorized(notAuthorized);
+        }
+
+
+        [HttpGet]
+        [Route("GetBusniessPDF")]
+        [PaymentGatewayAuthToken]
+        public IActionResult getPDF(int UserId)
+        {
+            var AccessToken = Request.Headers["Access-token"].ToString();
+            var AdminId = _db.LoginTokens.Where(s => s.Token == AccessToken).Select(p => p.UserId).SingleOrDefault();
+
+            if (AdminId != null)
+                if (_db.Users.Any(s => s.Id == AdminId && s.UserTypeId == 1))
+                {
+                    var user = _db.Users.SingleOrDefault(s => s.Id == UserId && s.UserTypeId == 2);
+                    if (user != null)
+                    {
+                        var businessProfile = _db.BusinessProfile.Where(s => s.UserId == UserId).SingleOrDefault();
+                        if (businessProfile != null)
+                        {
+                            byte[] bytes = Convert.FromBase64String(businessProfile.Pdf);
+                            return File(bytes, "application/pdf");
+                        }
+                    }
+                }
+            return Unauthorized(notAuthorized);
         }
     }
 }
