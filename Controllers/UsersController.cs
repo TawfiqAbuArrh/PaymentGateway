@@ -186,6 +186,37 @@ namespace PaymentGateway_Task.Controllers
             return Unauthorized(notAuthorized);
         }
 
+
+
+        [HttpPost]
+        [Route("AddBalance")]
+        [PaymentGatewayAuthToken]
+        public IActionResult AddBalance(Amount request)
+        {
+            if (request == null || !decimal.TryParse(request.amount, out _) || (decimal.Parse(request.amount) <= 0))
+                return BadRequest(badRequest);
+
+            var AccessToken = Request.Headers["Access-token"].ToString();
+
+            var UserID = _db.LoginTokens.Where(s => s.Token == AccessToken).Select(p => p.UserId).SingleOrDefault();
+            if (UserID != null)
+            {
+                var user = _db.Users.Where(s => s.Id == UserID && s.UserTypeId != 1).Include(s => s.UserType).SingleOrDefault();
+                if (user != null)
+                {
+                    user.CreditBalance += decimal.Parse(request.amount);
+                    _db.SaveChanges();
+                    return Ok(new Response
+                    {
+                        ResponseCode = 0,
+                        ResponseMessage = "Balance Added: " + request.amount,
+                        ResponseResults = "New Balance: " + user.CreditBalance
+                    });
+                }
+            }
+            return BadRequest(badRequest);
+        }
+
         [HttpGet]
         [Route("Details")]
         [PaymentGatewayAuthToken]
