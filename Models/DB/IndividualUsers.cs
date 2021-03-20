@@ -7,12 +7,11 @@ using System.Collections.Generic;
 
 namespace PaymentGateway_Task.Models.DB
 {
-    public partial class Users
+    public partial class IndividualUsers
     {
-        public Users()
+        public IndividualUsers()
         {
             LoginTokens = new HashSet<LoginTokens>();
-            Transaction = new HashSet<Transaction>();
         }
 
         public string UserName { get; set; }
@@ -20,11 +19,8 @@ namespace PaymentGateway_Task.Models.DB
         public int UserTypeId { get; set; }
         public int Id { get; set; }
         public bool AdminApproval { get; set; }
-        public decimal CreditBalance { get; set; }
 
         public virtual UsersType UserType { get; set; }
-        public virtual BusinessProfile BusinessProfile { get; set; }
         public virtual ICollection<LoginTokens> LoginTokens { get; set; }
-        public virtual ICollection<Transaction> Transaction { get; set; }
     }
 }

@@ -7,10 +7,11 @@ using System.Collections.Generic;
 
 namespace PaymentGateway_Task.Models.DB
 {
-    public partial class Admin
+    public partial class Balances
     {
-        public int Id { get; set; }
-        public string Name { get; set; }
-        public string Passwords { get; set; }
+        public int? UserId { get; set; }
+        public decimal CreditBalance { get; set; }
+
+        public virtual Users User { get; set; }
     }
 }

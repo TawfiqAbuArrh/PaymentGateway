@@ -16,10 +16,11 @@ CREATE TABLE [dbo].[Users]
     CONSTRAINT [PK_Users] PRIMARY KEY ([ID])
 );
 
+Insert into [dbo].[Users] (UserName, Password, UserTypeID) values ('Admin', '1234567890', 1);
 
 select a.ID, a.Name, a.Password, b.Name "UserType", a.CreditBalance from [dbo].[Users] a inner join [dbo].[UsersType] b on a.UserTypeID = b.UserType_ID;
 
-Alter Table [dbo].[Users] Add CreditBalance decimal(19,4) NOT NULL DEFAULT 0;
+Alter Table [dbo].[Transaction] Add UserId int not null;
 
 CREATE TABLE [dbo].[LoginTokens]
 (
@@ -34,3 +35,26 @@ CREATE TABLE [dbo].[LoginTokens]
 
 
 EXEC sp_rename 'TransactionTypes.TransactionName', 'TransactionType_Name', 'COLUMN';
+
+USE PaymentGateway;   
+GO  
+EXEC sp_rename 'Users', 'IndividualUsers'; 
+
+alter table [dbo].[Users] Add 
+    [CreditBalance] DECIMAL (19, 4) DEFAULT ((0)) NOT NULL;
+
+CREATE TABLE [dbo].[BusinessProfile] (
+    [UserID]	INT,
+    [BusinessTypeID] INT            NOT NULL,
+    [ContactName]    NVARCHAR (50)  NOT NULL,
+    [ContactPhone]   NVARCHAR (15)  NOT NULL,
+    [PDF]            VARCHAR (MAX)  NULL,
+    [PDF_Name]       NVARCHAR (255) NULL,
+    CONSTRAINT [FK_Business_UsersID] FOREIGN KEY ([UserID]) REFERENCES [dbo].[Users] ([ID]),
+    CONSTRAINT [FK_Business_BusinessID] FOREIGN KEY ([BusinessTypeID]) REFERENCES [dbo].[BusinessType] ([Business_Id])
+);
+
+Alter table [dbo].[Transaction] Add 
+  CONSTRAINT [PK_Transaction_ID] PRIMARY KEY ([Transaction_ID]);
+
+--[Transaction_ID]     INT             IDENTITY (1, 1) NOT NULL

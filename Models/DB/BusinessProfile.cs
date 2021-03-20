@@ -7,16 +7,16 @@ using System.Collections.Generic;
 
 namespace PaymentGateway_Task.Models.DB
 {
-    public partial class Transaction
+    public partial class BusinessProfile
     {
-        public string TransactionName { get; set; }
-        public decimal TransactionAmount { get; set; }
-        public int TransactionTypeId { get; set; }
         public int UserId { get; set; }
-        public string TransactionId { get; set; }
-        public DateTime TransactionTime { get; set; }
+        public int BusinessTypeId { get; set; }
+        public string ContactName { get; set; }
+        public string ContactPhone { get; set; }
+        public string Pdf { get; set; }
+        public string PdfName { get; set; }
 
-        public virtual TransactionTypes TransactionType { get; set; }
+        public virtual BusinessType BusinessType { get; set; }
         public virtual Users User { get; set; }
     }
 }
