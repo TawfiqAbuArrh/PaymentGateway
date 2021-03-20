@@ -34,7 +34,7 @@ namespace PaymentGateway_Task.Controllers
         }
 
         [HttpPost]
-        public IActionResult post(LoginRequest request)
+        public IActionResult post(Login request)
         {
             try
             {

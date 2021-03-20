@@ -1,10 +1,13 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using PaymentGateway_Task.Helpers;
+using PaymentGateway_Task.Intrerfaces;
 using PaymentGateway_Task.Models.API.Requests;
 using PaymentGateway_Task.Models.API.Response;
 using PaymentGateway_Task.Models.DB;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -16,6 +19,7 @@ namespace PaymentGateway_Task.Controllers
     public class UsersController : ControllerBase
     {
         private readonly PaymentGatewayContext _db;
+        private readonly IUserTransaction userTransaction;
         private Response response;
 
         private Response notAuthorized = new Response
@@ -39,9 +43,10 @@ namespace PaymentGateway_Task.Controllers
             ResponseResults = false
         };
 
-        public UsersController(PaymentGatewayContext _db)
+        public UsersController(PaymentGatewayContext _db, IUserTransaction userTransaction)
         {
             this._db = _db;
+            this.userTransaction = userTransaction;
         }
 
         [HttpPost]
@@ -177,6 +182,100 @@ namespace PaymentGateway_Task.Controllers
                     byte[] bytes = Convert.FromBase64String(businessProfile.Pdf);
                     return File(bytes, "application/pdf");
                 }
+            }
+            return Unauthorized(notAuthorized);
+        }
+
+        [HttpGet]
+        [Route("Details")]
+        [PaymentGatewayAuthToken]
+        public IActionResult getUserDetails()
+        {
+            var AccessToken = Request.Headers["Access-token"].ToString();
+
+            var UserID = _db.LoginTokens.Where(s => s.Token == AccessToken).Select(p => p.UserId).SingleOrDefault();
+            if (UserID != null)
+            {
+                var user = _db.Users.Where(s => s.Id == UserID && s.UserTypeId != 1).Include(s => s.UserType).SingleOrDefault();
+                if (user != null)
+                {
+                    BusinessProfile businessProfile = null;
+                    if (user.UserTypeId == 2)
+                        businessProfile = _db.BusinessProfile.Where(s => s.UserId == UserID).Include(s => s.BusinessType).SingleOrDefault();
+                    var transactions = userTransaction.getUserTransaction((int)UserID);
+
+                    var AllUserTransActions = new List<TransactionResponse>();
+                    foreach (var item in transactions)
+                    {
+                        AllUserTransActions.Add(new TransactionResponse
+                        {
+                            TransactionAmount = item.TransactionAmount,
+                            TransactionId = item.TransactionId,
+                            TransactionName = item.TransactionName,
+                            TransactionType = item.TransactionType.TransactionTypeName
+                        });
+                    }
+
+                    var userDetails = new UserDetails
+                    {
+                        user = new UserResponse
+                        {
+                            UserName = user.UserName,
+                            UserType = user.UserType.Name,
+                            CreditBalance = user.CreditBalance,
+                            BusinessType = user.UserTypeId == 2 ? businessProfile.BusinessType.BusinessName : null,
+                            ContactName = user.UserTypeId == 2 ? businessProfile.ContactName : null,
+                            ContactPhone = user.UserTypeId == 2 ? businessProfile.ContactPhone : null,
+                            PDFName = user.UserTypeId == 2 ? businessProfile.PdfName : null,
+                        },
+                        transactions = AllUserTransActions
+                    };
+                    return Ok(new Response
+                    {
+                        ResponseCode = 0,
+                        ResponseMessage = "Success",
+                        ResponseResults = userDetails
+                    });
+                }
+                return BadRequest(badRequest);
+            }
+            return Unauthorized(notAuthorized);
+        }
+
+        [HttpGet]
+        [Route("Transactions")]
+        [PaymentGatewayAuthToken]
+        public IActionResult getUserTransactions()
+        {
+            var AccessToken = Request.Headers["Access-token"].ToString();
+
+            var UserID = _db.LoginTokens.Where(s => s.Token == AccessToken).Select(p => p.UserId).SingleOrDefault();
+            if (UserID != null)
+            {
+                var user = _db.Users.Where(s => s.Id == UserID && s.UserTypeId != 1).Include(s => s.UserType).SingleOrDefault();
+                if (user != null)
+                {
+                    var transactions = userTransaction.getUserTransaction((int)UserID);
+
+                    var AllUserTransActions = new List<TransactionResponse>();
+                    foreach (var item in transactions)
+                    {
+                        AllUserTransActions.Add(new TransactionResponse
+                        {
+                            TransactionAmount = item.TransactionAmount,
+                            TransactionId = item.TransactionId,
+                            TransactionName = item.TransactionName,
+                            TransactionType = item.TransactionType.TransactionTypeName
+                        });
+                    }
+                    return Ok(new Response 
+                    {
+                        ResponseCode = 0,
+                        ResponseMessage = "Success",
+                        ResponseResults = AllUserTransActions
+                    });
+                }
+                return BadRequest(badRequest);
             }
             return Unauthorized(notAuthorized);
         }
